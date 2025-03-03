@@ -87,7 +87,7 @@ The *eveng_lab_topo.yml* file defines the topology to be deployed, can use *--te
 
 This created the following topology:
 
-<img width="640" alt="Image" src="https://github.com/user-attachments/assets/6ee52f3c-e804-4d97-89c5-d6f9e46187ca" />
+<img width="1000" alt="Image" src="https://github.com/user-attachments/assets/6ee52f3c-e804-4d97-89c5-d6f9e46187ca" />
 
 You need to manually enable the startup-configs for the nodes, can do for all under *more actions -> Set nodes startup-cfg to exported*. All nodes in a lab can be started and stopped individual (with *node-id*) or all at once. The full lab path needs specifying for these and any of other lab verification commands.
 
