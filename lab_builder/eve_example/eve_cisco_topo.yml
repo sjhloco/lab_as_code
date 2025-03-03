@@ -1,0 +1,95 @@
+---
+#### Initial EVE-NG topology file used with the "build" runtime flag ####
+name: eve_cisco_topo_initial
+addr:
+  mgmt_prefix: 10.40.20.0/24
+  mgmt_gw: 10.40.20.1
+nodes:
+  ISP:
+    type: csr1000vng
+    # image: csr1000vng-universalk9.17.03.04a
+    ethernet: 8
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: ISP
+        mgmt:
+          Gi8: 100
+        # intf:
+        #   GigabitEthernet1: 10.1.40.1/30
+  R1:
+    type: iol
+    eve_type: iol                            
+    ethernet: 2
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: R1
+        mgmt:
+          e1/3: 101
+  R2:
+    type: iol
+    eve_type: iol
+    ethernet: 2
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: R2
+        mgmt:
+          e1/3: 102
+  XNET-ASA:
+    type: asav
+    ethernet: 8
+    config:
+      template: asa_base.j2
+      vars:
+        hostname: XNET-ASA
+        mgmt:
+          Mgmt0/0: 103
+        # intf:
+        #   GigabitEthernet0/0: 10.1.40.11/29
+        # zones:
+        #   outside: 
+        #     sec_level: 100
+        #     intf: [GigabitEthernet0/0]
+  CORE-SWI:
+    type: iol
+    image: L2-ADVENTERPRISEK9-M-17.15.1.bin
+    eve_type: iol 
+    ethernet: 8
+    config:
+      template: iosxel2_base.j2
+      vars:
+        hostname: CORE_SWI
+        mgmt:
+          e1/3: 104
+        vlans:
+          10: data
+          20: voice
+        # intf:
+        #   Ethernet0/0: 10.1.40.14/30 
+        # trunk:
+        #   Ethernet0/2: 10,20
+        # access:
+        #   Ethernet0/0: 10
+  WS01:
+    type: win
+    image: win-10
+  SVR01:
+    type: winserver
+
+networks:
+  MGMT:
+    management: true
+    type: pnet1
+    links: [ISP, R1, R2, XNET-ASA, CORE-SWI]
+  INET:
+    type: pnet9
+    links: [ISP]
+  XNET-SWI:
+    type: bridge
+    links: [R1, R2, XNET-ASA]
+
+links:
+  ISP: [R1, R2]
+  CORE-SWI: [XNET-ASA, WS01, SVR01]

@@ -1,0 +1,149 @@
+#### Final EVE-NG topology file used with the "config" runtime flag to also assign interface IPs ####
+name: eve_cisco_topo
+addr:
+  mgmt_prefix: 10.40.20.0/24
+  mgmt_gw: 10.40.20.1
+nodes:
+  ISP:
+    type: csr1000vng
+    ethernet: 8
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: ISP
+        mgmt:
+          Gi8: 100
+        intf:
+          Gi1: dhcp
+          Gi2: 10.1.40.1/30
+          Gi3:  10.1.40.5/30
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: Gi8
+        mgmt_addr: 10.40.20.100 255.255.255.0
+  R1:
+    type: iol
+    eve_type: iol
+    ethernet: 2
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: R1
+        mgmt:
+          e1/3: 101
+        intf:
+          e0/0: 10.1.40.9/29
+          e0/1: 10.1.40.2/30
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: e1/3
+        mgmt_addr: 10.40.20.101 255.255.255.0
+  R2:
+    type: iol
+    eve_type: iol
+    ethernet: 2
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: R2
+        mgmt:
+          e1/3: 102
+        intf:
+          e0/0: 10.1.40.10/29
+          e0/1:  10.1.40.6/30
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: e1/3
+        mgmt_addr: 10.40.20.102 255.255.255.0
+  XNET-ASA:
+    type: asav
+    ethernet: 8
+    config:
+      template: asa_base.j2
+      vars:
+        hostname: XNET-ASA
+        mgmt:
+          Mgmt0/0: 103
+        intf:
+          Gi0/0: 10.1.40.11/29
+          Gi0/1: 10.1.40.13/30
+        zones:
+          outside: 
+            sec_level: 100
+            intf: [Gi0/0]
+          inside: 
+            sec_level: 0
+            intf: [Gi0/1]
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: Mgmt0/0
+        mgmt_addr: 10.40.20.103 255.255.255.0
+  CORE-SWI:
+    type: iol
+    image: L2-ADVENTERPRISEK9-M-17.15.1.bin
+    eve_type: iol
+    ethernet: 8
+    config:
+      template: iosxel2_base.j2
+      vars:
+        hostname: CORE_SWI
+        mgmt:
+          e1/3: 104
+        vlans:
+          10: data
+          20: voice
+        intf:
+          e0/0: 10.1.40.14/30 
+          vlan10: 10.2.10.1/24
+          vlan20: 10.2.20.1/24
+        trunk:
+          e0/3: all
+          e1/0: 10,20
+        access:
+          e0/1: 20
+          e0/2: 10 
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: e1/3
+        mgmt_addr: 10.40.20.104 255.255.255.0
+  WS01:
+    type: win
+    image: win-10
+    config:
+      vars:
+        intf_links:
+          e0: L8 >> CORE-SWI:e0/1
+  SVR01:
+    type: winserver
+    config:
+      vars:
+        intf_links:
+          e0: L9 >> CORE-SWI:e0/2
+networks:
+  MGMT:
+    management: true
+    type: pnet1
+    links:
+    - ISP
+    - R1
+    - R2
+    - XNET-ASA
+    - CORE-SWI
+    - true
+    intf_links: {}
+  INET:
+    type: pnet9
+    links:
+    - ISP
+    intf_links: {}
+  XNET-SWI:
+    type: bridge
+    links:
+    - R1
+    - R2
+    - XNET-ASA
+    intf_links: {}
+links:
+  ISP:
+  - R1
+  - R2
+  CORE-SWI:
+  - XNET-ASA
+  - WS01
+  - SVR01
+lab_id: /eve_cisco_topo_initial.unl

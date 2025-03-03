@@ -1,0 +1,79 @@
+---
+#### Example input topology file to explain meanings of each parameter ####
+# Everything not hashed out is required, everything else is optional
+name: name_of_lab                   # The lab name, in EVE-NG this must be unique but CML doesnt matter (uses an arbitrary ID for uniqueness)
+# description: xxx
+addr:
+  mgmt_prefix: 10.30.20.0/24        # Range all management address come from
+  mgmt_gw: 10.30.20.2               # Management range default gateway, used by all nodes
+
+#### Nodes: All manageable nodes, the interface (intf) details can be added now or later once know which links have been created
+nodes:
+  IOL1:                                                               # Node name
+    type: csr1000vng/ csr1000v                                        # Node type, in eve is known as the "template" and in CML the "node_definition"
+    # image: csr1000vng-universalk9.17.03.04a/ csr1000v-170304a       # (optional) Software version (defaults to newest), in eve known as "image, in CML "image_definition"
+    # eve_type: iol                                                   # (optional) Only used by eve, defaults to qemu so only need to define when using IOL
+    # ethernet: 8                                                     # (optional) Number of interfaces, if undefined uses the node type default (normally 4)
+    config:                                                           # Used to generate the nodes startup config
+      template: iosxel3_base.j2                                           # Per device_type jinja template used to create the config
+      vars:                                                           # Variables rendered by the template
+        hostname: R1
+        mgmt:
+          Gi8/ GigabitEthernet8: 100                                  # Management interface and 4th octet of mgmt IP (added to mgmt_prefix)
+        # intf:                                                       # Interface configuration
+        #   GigabitEthernet1: 10.1.40.1/30                            # Dict of interface number and IP address
+  CORE-SWI:
+    type: iol
+    image: L2-ADVENTERPRISEK9-M-17.15.1.bin
+    eve_type: iol 
+    ethernet: 2                                                       # For EVE IOL interfaces is groups of 4, so 2 is 8 interfaces (most others types is just number of interfaces)
+    config:
+      template: iosxel2_base.j2
+      vars:
+        hostname: CORE_SWI
+        mgmt:
+          e1/3: 104
+        # vlans:                                                       # VLANs on the device
+        #   10: data
+        #   20: voice
+        # intf:                                                        # L3 interfaces (no switchport)
+        #   Ethernet0/0: 10.1.40.14/30 
+        # trunk:                                                       # Trunk interfaces and the VLANs allowed over them (can also use all)
+        #   Ethernet0/2: 10,20
+        # access:                                                      # Access ports and the VLAN of the interface
+        #   Ethernet0/0: 10
+  XNET-ASA:
+    type: asav
+    ethernet: 8
+    config:
+      template: asa_base.j2
+      vars:
+        hostname: XNET-ASA
+        mgmt:
+          Mgmt0/0: 103
+        # intf:                                                     # L3 interfaces and IP
+        #   GigabitEthernet0/0: 10.1.40.11/29
+        # zones:                                                    # Firewall zones and the associated interfaces (IPs configured in intf)
+        #   outside: 
+        #     sec_level: 100
+        #     intf: [GigabitEthernet0/0]
+
+#### Bridges (unmanaged switches) and breakout networks (INET, MGMT, etc): Links for these network objects must be defined here, not in device links (links)
+networks:
+  MGMT:                                                     # Network object name
+    management: true                                        # To identify the bridge used for mgmt, all pre-defined mgmt interfaces connect this
+    type: pnet1/ ec_bridge1                                 # The EVE-NG cloud name or CML bridge name
+    links: [ISP, R1, R2, XNET-ASA, CORE-SWI]                # List of nodes that connect to this bridge. Uses the next local interface and remote device pre-defined mgmt interfaces
+    ethernet: 8                                             # Required for CML if more than 1 connection, creates an unmanaged_switch (xx_SWI) to connect all devices
+  INET:
+    type: pnet9/ ec_virbr0                                  # Internet breakout, EVE-NG cloud name or CML bridge name
+    links: [ISP]                                            # List of connected nodes, uses the next local and remote interface. By default they will be assigned an IP by DHCP
+    ethernet: 8                                             # Again only required for CML if more than 1 device connected
+  XNET-SWI:
+    type: bridge/ unmanaged_switch                          # Unmanaged local switch/bridge
+    links: [R1, R2, XNET-ASA]                               # List of connected nodes, uses the next local and remote interface
+
+#### All node links: Links between nodes, this CANNOT include any network links (PNET/ External connector or bridge/ unmanaged switch)
+links:                                                      # The next available interface on each node is automatically used
+  ISP: [R1, R2]                                             # Dict key is node_a, and dict value is a list of all the devices it connects to 
+  CORE-SWI: [XNET-ASA, WS01, SVR01]

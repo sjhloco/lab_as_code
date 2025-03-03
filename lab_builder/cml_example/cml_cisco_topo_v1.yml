@@ -1,0 +1,139 @@
+name: cml_cisco_topo_initial
+addr:
+  mgmt_prefix: 10.40.20.0/24
+  mgmt_gw: 10.40.20.2
+nodes:
+  ISP:
+    type: csr1000v
+    image: csr1000v-170304a
+    ethernet: 8
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: ISP
+        mgmt:
+          GigabitEthernet8: 100
+        intf_links:
+          GigabitEthernet1: L1 >> INET:port
+          GigabitEthernet2: L5 >> R1:Ethernet0/1
+          GigabitEthernet3: L6 >> R2:Ethernet0/1
+        mgmt_gw: 10.40.20.2
+        mgmt_intf: GigabitEthernet8
+        mgmt_addr: 10.40.20.100 255.255.255.0
+  R1:
+    type: iol-xe
+    ethernet: 8
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: R1
+        mgmt:
+          Ethernet1/3: 101
+        intf_links:
+          Ethernet0/0: L2 >> XNET-SWI:port0
+          Ethernet0/1: L5 >> ISP:GigabitEthernet2
+        mgmt_gw: 10.40.20.2
+        mgmt_intf: Ethernet1/3
+        mgmt_addr: 10.40.20.101 255.255.255.0
+  R2:
+    type: iol-xe
+    ethernet: 8
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: R2
+        mgmt:
+          Ethernet1/3: 102
+        intf_links:
+          Ethernet0/0: L3 >> XNET-SWI:port1
+          Ethernet0/1: L6 >> ISP:GigabitEthernet3
+        mgmt_gw: 10.40.20.2
+        mgmt_intf: Ethernet1/3
+        mgmt_addr: 10.40.20.102 255.255.255.0
+  XNET-ASA:
+    type: asav
+    ethernet: 8
+    config:
+      template: asa_base.j2
+      vars:
+        hostname: XNET-ASA
+        mgmt:
+          Management0/0: 103
+        intf_links:
+          GigabitEthernet0/0: L4 >> XNET-SWI:port2
+          GigabitEthernet0/1: L7 >> CORE-SWI:Ethernet0/0
+        mgmt_gw: 10.40.20.2
+        mgmt_intf: Management0/0
+        mgmt_addr: 10.40.20.103 255.255.255.0
+  CORE-SWI:
+    type: ioll2-xe
+    ethernet: 8
+    config:
+      template: iosxel2_base.j2
+      vars:
+        hostname: CORE_SWI
+        mgmt:
+          Ethernet1/3: 104
+        vlans:
+          10: data
+          20: voice
+        intf_links:
+          Ethernet0/0: L7 >> XNET-ASA:GigabitEthernet0/1
+          Ethernet0/1: L8 >> WS01:eth0
+          Ethernet0/2: L9 >> SVR01:eth0
+        mgmt_gw: 10.40.20.2
+        mgmt_intf: Ethernet1/3
+        mgmt_addr: 10.40.20.104 255.255.255.0
+  WS01:
+    type: desktop
+    ethernet: 1
+    config:
+      vars:
+        intf_links:
+          eth0: L8 >> CORE-SWI:Ethernet0/1
+  SVR01:
+    type: server
+    config:
+      vars:
+        intf_links:
+          eth0: L9 >> CORE-SWI:Ethernet0/2
+networks:
+  MGMT:
+    management: true
+    type: external_connector
+    links:
+    - ISP
+    - R1
+    - R2
+    - XNET-ASA
+    - CORE-SWI
+    - MGMT
+    - true
+    intf_links: {}
+    config: bridge1
+  INET:
+    type: external_connector
+    links:
+    - ISP
+    intf_links:
+      port: L1 >> ISP:GigabitEthernet1
+    config: virbr0
+  XNET-SWI:
+    type: unmanaged_switch
+    links:
+    - R1
+    - R2
+    - XNET-ASA
+    intf_links:
+      port0: L2 >> R1:Ethernet0/0
+      port1: L3 >> R2:Ethernet0/0
+      port2: L4 >> XNET-ASA:GigabitEthernet0/0
+links:
+  ISP:
+  - R1
+  - R2
+  CORE-SWI:
+  - XNET-ASA
+  - WS01
+  - SVR01
+lab_id: a6961502-196b-442b-95f5-c4a51b9d5cc0

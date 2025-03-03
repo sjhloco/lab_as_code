@@ -1,0 +1,135 @@
+name: eve_cisco_topo_initial
+addr:
+  mgmt_prefix: 10.40.20.0/24
+  mgmt_gw: 10.40.20.1
+nodes:
+  ISP:
+    type: csr1000vng
+    ethernet: 8
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: ISP
+        mgmt:
+          Gi8: 100
+        intf_links:
+          Gi1: L1 >> INET
+          Gi2: L5 >> R1:e0/1
+          Gi3: L6 >> R2:e0/1
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: Gi8
+        mgmt_addr: 10.40.20.100 255.255.255.0
+  R1:
+    type: iol
+    eve_type: iol
+    ethernet: 2
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: R1
+        mgmt:
+          e1/3: 101
+        intf_links:
+          e0/0: L2 >> XNET-SWI
+          e0/1: L5 >> ISP:Gi2
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: e1/3
+        mgmt_addr: 10.40.20.101 255.255.255.0
+  R2:
+    type: iol
+    eve_type: iol
+    ethernet: 2
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: R2
+        mgmt:
+          e1/3: 102
+        intf_links:
+          e0/0: L3 >> XNET-SWI
+          e0/1: L6 >> ISP:Gi3
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: e1/3
+        mgmt_addr: 10.40.20.102 255.255.255.0
+  XNET-ASA:
+    type: asav
+    ethernet: 8
+    config:
+      template: asa_base.j2
+      vars:
+        hostname: XNET-ASA
+        mgmt:
+          Mgmt0/0: 103
+        intf_links:
+          Gi0/0: L4 >> XNET-SWI
+          Gi0/1: L7 >> CORE-SWI:e0/0
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: Mgmt0/0
+        mgmt_addr: 10.40.20.103 255.255.255.0
+  CORE-SWI:
+    type: iol
+    image: L2-ADVENTERPRISEK9-M-17.15.1.bin
+    eve_type: iol
+    ethernet: 8
+    config:
+      template: iosxel2_base.j2
+      vars:
+        hostname: CORE_SWI
+        mgmt:
+          e1/3: 104
+        vlans:
+          10: data
+          20: voice
+        intf_links:
+          e0/0: L7 >> XNET-ASA:Gi0/1
+          e0/1: L8 >> WS01:e0
+          e0/2: L9 >> SVR01:e0
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: e1/3
+        mgmt_addr: 10.40.20.104 255.255.255.0
+  WS01:
+    type: win
+    image: win-10
+    config:
+      vars:
+        intf_links:
+          e0: L8 >> CORE-SWI:e0/1
+  SVR01:
+    type: winserver
+    config:
+      vars:
+        intf_links:
+          e0: L9 >> CORE-SWI:e0/2
+networks:
+  MGMT:
+    management: true
+    type: pnet1
+    links:
+    - ISP
+    - R1
+    - R2
+    - XNET-ASA
+    - CORE-SWI
+    - true
+    intf_links: {}
+  INET:
+    type: pnet9
+    links:
+    - ISP
+    intf_links: {}
+  XNET-SWI:
+    type: bridge
+    links:
+    - R1
+    - R2
+    - XNET-ASA
+    intf_links: {}
+links:
+  ISP:
+  - R1
+  - R2
+  CORE-SWI:
+  - XNET-ASA
+  - WS01
+  - SVR01
+lab_id: /eve_cisco_topo_initial.unl

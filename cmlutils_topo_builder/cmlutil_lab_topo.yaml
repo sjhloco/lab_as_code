@@ -1,0 +1,542 @@
+lab:
+  description: ''
+  title: CMLUTIL lab topology
+  version: 0.3.0
+nodes:
+  - id: n0
+    label: ISP
+    node_definition: csr1000v
+    x: -480
+    y: 120
+    interfaces:
+      - id: i1
+        label: GigabitEthernet1
+        slot: 0
+        type: physical
+      - id: i2
+        label: GigabitEthernet2
+        slot: 1
+        type: physical
+      - id: i3
+        label: GigabitEthernet3
+        slot: 2
+        type: physical
+      - id: i4
+        label: GigabitEthernet4
+        slot: 3
+        type: physical
+    configuration:
+      - name: iosxe_config.txt
+        content: |-
+          hostname ISP
+          ip domain-name stesworld.com
+          no ip domain lookup
+          !
+          username admin privilege 15 password pa$$w0rd
+          !
+          vrf definition MGMT
+          address-family ipv4
+          exit-address-family
+          !
+          interface GigabitEthernet1
+            ip address 10.1.40.1 255.255.255.252
+            no shutdown
+          interface GigabitEthernet2
+            ip address 10.1.40.5 255.255.255.252
+            no shutdown
+          interface GigabitEthernet3
+            ip address dhcp
+            no shutdown
+          interface GigabitEthernet4
+            vrf forwarding MGMT
+            ip address 10.30.20.100 255.255.255.0
+            no shutdown
+          !
+          ip route vrf MGMT 0.0.0.0 0.0.0.0 10.30.20.2
+          !
+          line con 0
+            exec-timeout 0 0 
+          line vty 0 4
+            login local
+            privilege level 15
+            exec-timeout 60 0 
+            transport input all
+          !
+          crypto key generate rsa modulus 2048
+          !
+          end
+  - id: n1
+    label: R1
+    node_definition: iol-xe
+    x: -240
+    y: 0
+    interfaces:
+      - id: i1
+        label: Ethernet0/0
+        slot: 0
+        type: physical
+      - id: i2
+        label: Ethernet0/1
+        slot: 1
+        type: physical
+      - id: i3
+        label: Ethernet0/2
+        slot: 2
+        type: physical
+      - id: i4
+        label: Ethernet0/3
+        slot: 3
+        type: physical
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R1
+          ip domain name stesworld.com
+          no ip domain-lookup
+          !
+          username admin privilege 15 password pa$$w0rd
+          !
+          vrf definition MGMT
+            address-family ipv4
+          !
+          interface Ethernet0/0
+            ip address 10.1.40.2 255.255.255.252
+            no shutdown
+          interface Ethernet0/1
+            ip address 10.1.40.9 255.255.255.248
+            no shutdown
+          interface Ethernet0/3
+            vrf forwarding MGMT
+            ip address 10.30.20.101 255.255.255.0
+            no shutdown
+          !
+          ip route vrf MGMT 0.0.0.0 0.0.0.0 10.30.20.2
+          !
+          line con 0
+            exec-timeout 0 0 
+          line vty 0 4
+            login local
+            privilege level 15
+            exec-timeout 60 0 
+            transport input all
+          !
+          crypto key generate rsa modulus 2048
+          !
+          end
+  - id: n2
+    label: R2
+    node_definition: iol-xe
+    x: -240
+    y: 240
+    interfaces:
+      - id: i1
+        label: Ethernet0/0
+        slot: 0
+        type: physical
+      - id: i2
+        label: Ethernet0/1
+        slot: 1
+        type: physical
+      - id: i3
+        label: Ethernet0/2
+        slot: 2
+        type: physical
+      - id: i4
+        label: Ethernet0/3
+        slot: 3
+        type: physical
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname R2
+          ip domain name stesworld.com
+          no ip domain-lookup
+          !
+          username admin privilege 15 password pa$$w0rd
+          !
+          vrf definition MGMT
+            address-family ipv4
+          !
+          interface Ethernet0/0
+            ip address 10.1.40.6 255.255.255.252
+            no shutdown
+          interface Ethernet0/1
+            ip address 10.1.40.10 255.255.255.248
+            no shutdown
+          interface Ethernet0/3
+            vrf forwarding MGMT
+            ip address 10.30.20.102 255.255.255.0
+            no shutdown
+          !
+          ip route vrf MGMT 0.0.0.0 0.0.0.0 10.30.20.2
+          !
+          line con 0
+            exec-timeout 0 0 
+          line vty 0 4
+            login local
+            privilege level 15
+            exec-timeout 60 0 
+            transport input all
+          !
+          crypto key generate rsa modulus 2048
+          !
+          end
+  - id: n3
+    label: SWI-XNET
+    node_definition: ioll2-xe
+    x: -40
+    y: 120
+    interfaces:
+      - id: i1
+        label: Ethernet0/0
+        slot: 0
+        type: physical
+      - id: i2
+        label: Ethernet0/1
+        slot: 1
+        type: physical
+      - id: i3
+        label: Ethernet0/2
+        slot: 2
+        type: physical
+      - id: i4
+        label: Ethernet0/3
+        slot: 3
+        type: physical
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname SWI-XNET
+          ip domain-name stesworld.com
+          no ip domain-lookup
+          !
+          username admin privilege 15 password pa$$w0rd
+          !
+          vrf definition MGMT
+            address-family ipv4
+          !
+          vlan 99
+            name VL_L2_INET
+          !
+          interface Ethernet0/0
+            switchport mode access
+            switchport access vlan 99
+            no shutdown
+          interface Ethernet0/1
+            switchport mode access
+            switchport access vlan 99
+            no shutdown
+          interface Ethernet0/2
+            switchport mode access
+            switchport access vlan 99
+            no shutdown
+          interface Ethernet0/3
+            no switchport
+            vrf forwarding MGMT
+            ip address 10.30.20.103 255.255.255.0
+            no shutdown
+          !
+          ip route vrf MGMT 0.0.0.0 0.0.0.0 10.30.20.2
+          !
+          line con 0
+            exec-timeout 0 0 
+          line vty 0 4
+            login local
+            privilege level 15
+            exec-timeout 60 0 
+            transport input all
+          !
+          crypto key generate rsa modulus 2048
+          !
+          end
+  - id: n4
+    label: XNET-ASA
+    node_definition: asav
+    x: 160
+    y: 120
+    interfaces:
+      - id: i0
+        label: Management0/0
+        slot: 0
+        type: physical
+      - id: i1
+        label: GigabitEthernet0/0
+        slot: 1
+        type: physical
+      - id: i2
+        label: GigabitEthernet0/1
+        slot: 2
+        type: physical
+    configuration:
+      - name: day0-config.txt
+        content: |-
+          hostname XNET-ASA
+          domain-name stesworld.com
+          !
+          username admin privilege 15 
+          username admin password pa$$w0rd
+          aaa authentication ssh console LOCAL
+          aaa authentication enable console LOCAL
+          aaa authorization exec authentication-server auto-enable
+          aaa authentication serial console LOCAL
+          !
+          interface Management0/0
+            nameif mgmt
+            security-level 100
+            ip address 10.30.20.104 255.255.255.0
+            no shutdown
+          interface GigabitEthernet0/0
+            ip address 10.1.40.11 255.255.255.248
+            nameif OUTSIDE
+            security level 0
+            no shutdown
+          interface GigabitEthernet0/1
+            ip address 10.1.50.1 255.255.255.0
+            nameif INSIDE
+            security level 100
+            no shutdown
+          !
+          route mgmt 0.0.0.0 0.0.0.0 10.30.20.2
+          !
+          ssh 0.0.0.0 0.0.0.0 mgmt
+          http 0.0.0.0 0.0.0.0 mgmt
+          ssh scopy enable
+          http server enable 
+          ssh timeout 60
+          telnet timeout 60
+          console timeout 0
+          !
+          crypto key generate rsa modulus 2048
+          !
+          end
+  - id: n5
+    label: CORE_SWI
+    node_definition: unmanaged_switch
+    x: 360
+    y: 120
+    interfaces:
+      - id: i0
+        label: port0
+        slot: 0
+        type: physical
+      - id: i1
+        label: port1
+        slot: 1
+        type: physical
+      - id: i2
+        label: port2
+        slot: 2
+        type: physical
+      - id: i3
+        label: port3
+        slot: 3
+        type: physical
+      - id: i4
+        label: port4
+        slot: 4
+        type: physical
+      - id: i5
+        label: port5
+        slot: 5
+        type: physical
+      - id: i6
+        label: port6
+        slot: 6
+        type: physical
+      - id: i7
+        label: port7
+        slot: 7
+        type: physical
+  - id: n6
+    label: WS01
+    node_definition: desktop
+    x: 520
+    y: 0
+    interfaces:
+      - id: i0
+        label: eth0
+        slot: 0
+        type: physical
+    configuration:
+      - name: node.cfg
+        content: |-
+          # this is a shell script which will be sourced at boot
+          hostname WS01
+          # configurable user account
+          USERNAME=cisco
+          PASSWORD=cisco
+  - id: n7
+    label: SVR01
+    node_definition: server
+    x: 520
+    y: 200
+    interfaces:
+      - id: i0
+        label: eth0
+        slot: 0
+        type: physical
+    configuration:
+      - name: iosxe_\config.txt
+        content: |-
+          # this is a shell script which will be sourced at boot
+          hostname SVR01
+          # configurable user account
+          USERNAME=cisco
+          PASSWORD=cisco
+          # no password for tc user by default
+          TC_PASSWORD=
+  - id: n8
+    label: INET
+    node_definition: external_connector
+    x: -600
+    y: 120
+    interfaces:
+      - id: i0
+        label: port
+        slot: 0
+        type: physical
+    configuration: []
+  - id: n9
+    label: MGMT
+    node_definition: external_connector
+    x: 160
+    y: 280
+    interfaces:
+      - id: i0
+        label: port
+        slot: 0
+        type: physical
+    configuration:
+      - name: default
+        content: bridge1
+
+  - id: n10
+    label: MGMT-SWI
+    node_definition: unmanaged_switch
+    x: 0
+    y: 280
+    interfaces:
+      - id: i0
+        label: port0
+        slot: 0
+        type: physical
+      - id: i1
+        label: port1
+        slot: 1
+        type: physical
+      - id: i2
+        label: port2
+        slot: 2
+        type: physical
+      - id: i3
+        label: port3
+        slot: 3
+        type: physical
+      - id: i4
+        label: port4
+        slot: 4
+        type: physical
+      - id: i5
+        label: port5
+        slot: 5
+        type: physical
+      - id: i6
+        label: port6
+        slot: 6
+        type: physical
+      - id: i7
+        label: port7
+        slot: 7
+        type: physical
+links:
+  - id: l0
+    label: ISP-GigabitEthernet1<->R1-Ethernet0/0
+    n1: n0
+    n2: n1
+    i1: i1
+    i2: i1
+  - id: l1
+    label: ISP-GigabitEthernet2<->R2-Ethernet0/0
+    n1: n0
+    n2: n2
+    i1: i2
+    i2: i1
+  - id: l2
+    label: R1-Ethernet0/1<->XNET-SWI-Ethernet0/0
+    n1: n1
+    n2: n3
+    i1: i2
+    i2: i1
+  - id: l3
+    label: R2-Ethernet0/1<->XNET-SWI-Ethernet0/1
+    n1: n2
+    n2: n3
+    i1: i2
+    i2: i2
+  - id: l4
+    label: SWI-XNET-Ethernet0/2<->XNET-ASA-GigabitEthernet0/0
+    n1: n3
+    n2: n4
+    i1: i3
+    i2: i1
+  - id: l5
+    label: XNET-ASA-GigabitEthernet0/1<->SWI-port0
+    n1: n4
+    n2: n5
+    i1: i2
+    i2: i0
+  - id: l6
+    label: WS01-eth0<->SWI-port1
+    n1: n6
+    n2: n5
+    i1: i0
+    i2: i1
+  - id: l7
+    label: SWI-port2<->SVR01-eth0
+    n1: n5
+    n2: n7
+    i1: i2
+    i2: i0
+# External Connectors and mgmt links
+  - id: l8
+    label: INET-port<->ISP-GigabitEthernet3
+    n1: n8
+    n2: n0
+    i1: i0
+    i2: i3
+  - id: l9
+    label: MGMT-port<->MGMT-SWI-port0
+    n1: n9
+    n2: n10
+    i1: i0
+    i2: i0
+  - id: l10
+    label: MGMT-SWI-port1<->ISP-GigabitEthernet4
+    n1: n10
+    n2: n0
+    i1: i1
+    i2: i4
+  - id: l11
+    label: MGMT-SWI-port2<->R1-Ethernet0/3
+    n1: n10
+    n2: n1
+    i1: i2
+    i2: i4
+  - id: l12
+    label: MGMT-SWI-port3<->R2-Ethernet0/3
+    n1: n10
+    n2: n2
+    i1: i3
+    i2: i4
+  - id: l13
+    label: MGMT-SWI-port4<->XNET-ASA-Management0/0
+    n1: n10
+    n2: n4
+    i1: i4
+    i2: i0
+  - id: l14
+    label: MGMT-SWI-port5<->SWI-XNET-Ethernet0/3
+    n1: n10
+    n2: n3
+    i1: i5
+    i2: i4

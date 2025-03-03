@@ -1,0 +1,48 @@
+{# Template for deploying initial config on Cisco ASA, ASAv #}
+{% if hostname is defined and hostname %}
+hostname {{ hostname }}
+{% endif %}
+domain-name stesworld.com
+!
+username admin privilege 15 
+username admin password pa$$w0rd
+aaa authentication ssh console LOCAL
+aaa authentication enable console LOCAL
+aaa authorization exec authentication-server auto-enable
+aaa authentication serial console LOCAL
+!
+{% if mgmt_addr is defined and mgmt_addr %}
+interface {{ mgmt_intf }}
+ nameif mgmt
+ security-level 100
+ ip address {{ mgmt_addr }}
+ no shutdown
+!
+{% if mgmt_addr != "dhcp" and (mgmt_gw is defined and mgmt_gw) %}
+route mgmt 0.0.0.0 0.0.0.0 {{ mgmt_gw }}
+{% endif %}
+ssh 0.0.0.0 0.0.0.0 mgmt
+http 0.0.0.0 0.0.0.0 mgmt
+{% endif %}
+!
+{% if intf is defined and intf is iterable %}
+{% for intf_name, ip_info in intf.items() %}
+interface {{ intf_name }}
+ ip address {{ ip_info.split()[0] }} {{ ip_info.split()[1] }}
+{% if zones is defined and zones is iterable %}
+{% for zone_name, zone_info in zones.items() %}
+{% if intf_name in zone_info.intf %}
+ nameif {{ zone_name }}
+ security level {{ zone_info.sec_level }}
+{% endif %}{% endfor %}
+ no shutdown
+{% endif %}{% endfor %}{% endif %}
+!
+ssh scopy enable
+http server enable 
+ssh timeout 60
+telnet timeout 60
+console timeout 0
+!
+crypto key generate rsa modulus 2048
+!

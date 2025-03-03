@@ -1,0 +1,153 @@
+#### Final CML topology file used with the "config" runtime flag to also assign interface IPs ####
+name: cml_cisco_topo
+addr:
+  mgmt_prefix: 10.40.20.0/24
+  mgmt_gw: 10.40.20.1
+nodes:
+  ISP:
+    type: csr1000v
+    image: csr1000v-170304a
+    ethernet: 8
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: ISP
+        mgmt:
+          GigabitEthernet8: 100
+        intf:
+          GigabitEthernet1: dhcp
+          GigabitEthernet2: 10.1.40.1/30
+          GigabitEthernet3: 10.1.40.5/30
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: GigabitEthernet8
+        mgmt_addr: 10.40.20.100 255.255.255.0
+  R1:
+    type: iol-xe
+    ethernet: 8
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: R1
+        mgmt:
+          Ethernet1/3: 101
+        intf:
+          Ethernet0/0: 10.1.40.9/29
+          Ethernet0/1: 10.1.40.2/30
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: Ethernet1/3
+        mgmt_addr: 10.40.20.101 255.255.255.0
+  R2:
+    type: iol-xe
+    ethernet: 8
+    config:
+      template: iosxel3_base.j2
+      vars:
+        hostname: R2
+        mgmt:
+          Ethernet1/3: 102
+        intf:
+          Ethernet0/0: 10.1.40.10/30
+          Ethernet0/1: 10.1.40.6/29
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: Ethernet1/3
+        mgmt_addr: 10.40.20.102 255.255.255.0
+  XNET-ASA:
+    type: asav
+    ethernet: 8
+    config:
+      template: asa_base.j2
+      vars:
+        hostname: XNET-ASA
+        mgmt:
+          Management0/0: 103
+        intf:
+          GigabitEthernet0/0: 10.1.40.11/29
+          GigabitEthernet0/1: 10.1.40.13/30
+        zones:
+          outside: 
+            sec_level: 100
+            intf: [GigabitEthernet0/0]
+          inside: 
+            sec_level: 0
+            intf: [GigabitEthernet0/1]
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: Management0/0
+        mgmt_addr: 10.40.20.103 255.255.255.0
+  CORE-SWI:
+    type: ioll2-xe
+    ethernet: 8
+    config:
+      template: iosxel2_base.j2
+      vars:
+        hostname: CORE_SWI
+        mgmt:
+          Ethernet1/3: 104
+        vlans:
+          10: data
+          20: voice
+        intf:
+          Ethernet0/0: 10.1.40.14/30 
+          vlan10: 10.2.10.1/24
+          vlan20: 10.2.20.1/24
+        trunk:
+          Ethernet0/3: all
+          Ethernet1/0: 10,20
+        access:
+          Ethernet0/1: 20
+          Ethernet0/2: 10 
+        mgmt_gw: 10.40.20.1
+        mgmt_intf: Ethernet1/3
+        mgmt_addr: 10.40.20.104 255.255.255.0
+  WS01:
+    type: desktop
+    ethernet: 1
+    config:
+      vars:
+        intf_links:
+          eth0: L8 >> CORE-SWI:Ethernet0/1
+  SVR01:
+    type: server
+    config:
+      vars:
+        intf_links:
+          eth0: L9 >> CORE-SWI:Ethernet0/2
+networks:
+  MGMT:
+    management: true
+    type: external_connector
+    links:
+    - ISP
+    - R1
+    - R2
+    - XNET-ASA
+    - CORE-SWI
+    - MGMT
+    - true
+    intf_links: {}
+    config: bridge1
+  INET:
+    type: external_connector
+    links:
+    - ISP
+    intf_links:
+      port: L1 >> ISP:GigabitEthernet1
+    config: virbr0
+  XNET-SWI:
+    type: unmanaged_switch
+    links:
+    - R1
+    - R2
+    - XNET-ASA
+    intf_links:
+      port8: L2 >> R1:Ethernet0/0
+      port9: L3 >> R2:Ethernet0/0
+      port0: L4 >> XNET-ASA:GigabitEthernet0/0
+links:
+  ISP:
+  - R1
+  - R2
+  CORE-SWI:
+  - XNET-ASA
+  - WS01
+  - SVR01
+lab_id: a6961502-196b-442b-95f5-c4a51b9d5cc0

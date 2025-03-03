@@ -1,0 +1,208 @@
+---
+name: cisco_topo
+description: Cisco remote site lab
+path: "/scratch"
+nodes:
+  # ISP routers
+  - name: isp01
+    template: vios
+    image: vios-adventerprisek9-m-15.6.2T
+    node_type: qemu
+    ethernet: 8
+    left: 220
+    top: 250
+    configuration:
+      template: iosxel3_base.j2
+      vars:
+        hostname: isp01
+        mgmt_addr: 10.30.20.11 255.255.255.0
+        mgmt_gw: 10.30.20.2
+        mgmt_intf: GigabitEthernet0/7
+        intf: 
+          GigabitEthernet0/0: dhcp
+          GigabitEthernet0/1: 10.1.40.1 255.255.255.252
+  - name: isp02
+    template: vios
+    image: vios-adventerprisek9-m-15.6.2T
+    node_type: qemu
+    ethernet: 8
+    left: 220
+    top: 500
+    configuration:
+      template: iosxel3_base.j2
+      vars:
+        hostname: isp02
+        mgmt_addr: 10.30.20.12 255.255.255.0
+        mgmt_gw: 10.30.20.2
+        mgmt_intf: GigabitEthernet0/7
+        intf: 
+          GigabitEthernet0/0: dhcp
+          GigabitEthernet0/1: 10.1.40.5 255.255.255.252
+  # Customer edge routers
+  - name: csr01
+    template: csr1000vng
+    image: csr1000vng-universalk9.17.03.04a
+    ethernet: 8
+    left: 440
+    top: 250
+    configuration:
+      template: iosxel3_base.j2
+      vars:
+        hostname: csr01
+        mgmt_addr: 10.30.20.13 255.255.255.0
+        mgmt_gw: 10.30.20.2
+        mgmt_intf: GigabitEthernet8
+        intf: 
+          GigabitEthernet1: 10.1.40.2 255.255.255.252
+          GigabitEthernet2: 10.1.40.9 255.255.255.252
+          GigabitEthernet3: 10.1.40.17 255.255.255.248
+  - name: csr02
+    template: csr1000vng
+    image: csr1000vng-universalk9.17.03.04a
+    ethernet: 8
+    left: 440
+    top: 500
+    configuration:
+      template: iosxel3_base.j2
+      vars:
+        hostname: csr02
+        mgmt_addr: 10.30.20.14 255.255.255.0
+        mgmt_gw: 10.30.20.2
+        mgmt_intf: GigabitEthernet8
+        intf: 
+          GigabitEthernet1: 10.1.40.6 255.255.255.252
+          GigabitEthernet2: 10.1.40.10 255.255.255.252
+          GigabitEthernet3: 10.1.40.18 255.255.255.248
+  # Edge switch and firewall
+  - name: xnet01
+    template: viosl2
+    image: viosl2-adventerprisek9-m-15.2-2017032
+    node_type: qemu
+    ethernet: 8
+    left: 700
+    top: 375
+    configuration:
+      template: iosxel2_base.j2
+      vars:
+        hostname: xnet01
+        mgmt_addr: 10.30.20.15 255.255.255.0
+        mgmt_gw: 10.30.20.2
+        mgmt_intf: GigabitEthernet1/3
+        vlans:
+          99: inet
+        access:
+          GigabitEthernet0/0: 99
+          GigabitEthernet0/1: 99
+          GigabitEthernet0/2: 99
+  - name: asa01
+    template: asav
+    image: asav-992
+    ethernet: 8
+    left: 850
+    top: 375
+    configuration:
+      template: asa_base.j2
+      vars:
+        hostname: asa01
+        mgmt_addr: 10.30.20.16 255.255.255.0
+        mgmt_gw: 10.30.20.2
+        mgmt_intf: Management0/0
+        intf:
+          GigabitEthernet0/0: 10.1.40.19 255.255.255.248
+          GigabitEthernet0/1: 10.1.40.13 255.255.255.252 
+        zones:
+          outside: 
+            sec_level: 100
+            intf: [GigabitEthernet0/0]
+          inside: 
+            sec_level: 0
+            intf: [GigabitEthernet0/1]
+
+  # Core and access switches
+  - name: core01
+    template: viosl2
+    image: viosl2-adventerprisek9-m-15.2-2017032
+    node_type: qemu
+    ethernet: 8
+    left: 1000
+    top: 375
+    configuration:
+      template: iosxel2_base.j2
+      vars:
+        hostname: core01
+        mgmt_addr: 10.30.20.17 255.255.255.0
+        mgmt_gw: 10.30.20.2
+        mgmt_intf: GGigabitEthernet1/3
+        vlans:
+          10: data
+          20: voice
+        inft:
+          GigabitEthernet0/0: 10.1.40.14 255.255.255.252 
+          vlan10: 10.2.10.1 255.255.255.0
+          vlan20: 10.2.20.1 255.255.255.0
+        trunk:
+          GigabitEthernet0/1: 10,20
+  - name: access01
+    template: viosl2
+    image: viosl2-adventerprisek9-m-15.2-2017032
+    node_type: qemu
+    ethernet: 8
+    left: 1100
+    top: 375
+    configuration:
+      template: iosxel2_base.j2
+      vars:
+        hostname: access01
+        mgmt_addr: 10.30.20.18 255.255.255.0
+        mgmt_gw: 10.30.20.2
+        mgmt_intf: GigabitEthernet1/3
+        vlans:
+          10: data
+          20: voice
+        trunk:
+          GigabitEthernet0/0: all
+          GigabitEthernet0/2: 10,20
+        access:
+          GigabitEthernet0/1: 10
+  - name: workstation01
+    template: win
+    image: win-7
+    node_type: qemu
+    left: 1100
+    top: 625
+
+networks:
+  - name: mgmt
+    network_type: pnet1
+    visibility: 1
+    left: 750
+    top: 100
+  - name: inet
+    network_type: pnet9
+    visibility: 1
+    left: 40
+    top: 375
+links:
+  # Connections to networks (pnets)
+  network:
+    - {"src": "isp01", "src_label": "Gi0/0", "dst": "inet"}
+    - {"src": "isp02", "src_label": "Gi0/0", "dst": "inet"}
+    - {"src": "isp01", "src_label": "Gi0/7", "dst": "mgmt"}
+    - {"src": "isp02", "src_label": "Gi0/7", "dst": "mgmt"}
+    - {"src": "csr01", "src_label": "Gi8", "dst": "mgmt"}
+    - {"src": "csr02", "src_label": "Gi8", "dst": "mgmt"}
+    - {"src": "xnet01", "src_label": "Gi1/3", "dst": "mgmt"}
+    - {"src": "asa01", "src_label": "Mgmt0/0", "dst": "mgmt"}
+    - {"src": "core01", "src_label": "Gi1/3", "dst": "mgmt"}
+    - {"src": "access01", "src_label": "Gi1/3", "dst": "mgmt"}
+  # # Connections between devices
+  node:
+    - {"src": "isp01", "src_label": "Gi0/1", "dst": "csr01", "dst_label": "Gi1"}
+    - {"src": "isp02", "src_label": "Gi0/1", "dst": "csr02", "dst_label": "Gi1"}
+    - {"src": "csr01", "src_label": "Gi2", "dst": "csr02", "dst_label": "Gi2"}
+    - {"src": "csr01", "src_label": "Gi3", "dst": "xnet01", "dst_label": "Gi0/0"}
+    - {"src": "csr02", "src_label": "Gi3", "dst": "xnet01", "dst_label": "Gi0/1"}
+    - {"src": "xnet01", "src_label": "Gi0/3", "dst": "asa01", "dst_label": "Gi0/0"}
+    - {"src": "asa01", "src_label": "Gi0/1", "dst": "core01", "dst_label": "Gi0/0"}
+    - {"src": "core01", "src_label": "Gi0/1", "dst": "access01", "dst_label": "Gi0/0"}
+    - {"src": "access01", "src_label": "Gi0/1", "dst": "workstation01", "dst_label": "e0"}

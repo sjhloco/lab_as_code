@@ -1,0 +1,39 @@
+{# Template for deploying initial config on Cisco IOS L3 devices (CSR, IOL, vIOS) #}
+{% if hostname is defined and hostname %}
+hostname {{ hostname }}
+{% endif %}
+ip domain name stesworld.com
+no ip domain lookup
+!
+username admin privilege 15 password pa$$w0rd
+!
+vrf definition MGMT
+ address-family ipv4
+!
+{% if mgmt_addr is defined and mgmt_addr %}
+interface {{ mgmt_intf }}
+ vrf forwarding MGMT
+ ip address {{ mgmt_addr }}
+ no shutdown
+!
+{% if mgmt_addr != "dhcp" and (mgmt_gw is defined and mgmt_gw) %}
+ip route vrf MGMT 0.0.0.0 0.0.0.0 {{ mgmt_gw }}
+{% endif %}{% endif %}
+!
+{% if intf is defined and intf is iterable %}
+{% for each_intf, each_addr in intf.items() %}
+interface {{ each_intf }}
+ ip address {{ each_addr }}
+ no shutdown
+{% endfor %}{% endif %}
+!
+line con 0
+ exec-timeout 0 0 
+line vty 0 4
+ login local
+ privilege level 15
+ exec-timeout 60 0 
+ transport input all
+!
+crypto key generate rsa modulus 2048
+!
