@@ -66,6 +66,11 @@ The *cmlutil_lab_topo.yaml* file defines the topology to be deployed, omit *--no
 Importing lab CMLUTIL lab topology from file cmlutil_lab_topo.yaml
 ```
 
+This created the following topology:
+
+<img width="1423" alt="Image" src="https://github.com/user-attachments/assets/09237a9c-98b1-417e-b00b-cc4ff6ec5065" />
+
+
 For cmlutils to be able to perform any further actions on the lab you must tell it which lab to use, this can be done with either the lab name or ID (use ID if have duplicate lab names).
 
 ```bash
