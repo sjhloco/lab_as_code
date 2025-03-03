@@ -129,7 +129,8 @@ or
 ```
 
 This will produce a randmised topology layout which you can then adjust in the GUI to be more human friendly.
-!!!! lab iamghe !!
+
+<img width="1055" alt="Image" src="https://github.com/user-attachments/assets/650f89f2-07d8-4bd4-a474-2c91882e0d28" />
 
 The *'build'* command also creates a new topology file (*xxx_v1.yml*) with an extra per-node *intf_links* dictionary that describes to whom each interface of the node connects to. It is worth noting this file also has a *lab_id* dictionary, this is what is used by all other runtime commands (*config, up, down, ls-nodes*) to know what lab to run the actions on.
 
