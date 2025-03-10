@@ -117,7 +117,6 @@ nodes:
           inside: 
             sec_level: 0
             intf: [GigabitEthernet0/1]
-
   # Core and access switches
   - name: core01
     template: viosl2
@@ -170,7 +169,7 @@ nodes:
     node_type: qemu
     left: 1100
     top: 625
-
+# clouds/pnets
 networks:
   - name: mgmt
     network_type: pnet1

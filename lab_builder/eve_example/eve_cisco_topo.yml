@@ -5,6 +5,7 @@ addr:
   mgmt_prefix: 10.40.20.0/24
   mgmt_gw: 10.40.20.1
 nodes:
+  # ISP routers
   ISP:
     type: csr1000vng
     # image: csr1000vng-universalk9.17.03.04a
@@ -17,6 +18,7 @@ nodes:
           Gi8: 100
         # intf:
         #   GigabitEthernet1: 10.1.40.1/30
+  # Customer edge routers
   R1:
     type: iol
     eve_type: iol                            
@@ -37,6 +39,7 @@ nodes:
         hostname: R2
         mgmt:
           e1/3: 102
+  # Edge firewall
   XNET-ASA:
     type: asav
     ethernet: 8
@@ -52,6 +55,7 @@ nodes:
         #   outside: 
         #     sec_level: 100
         #     intf: [GigabitEthernet0/0]
+  # Core switches and end devices
   CORE-SWI:
     type: iol
     image: L2-ADVENTERPRISEK9-M-17.15.1.bin
@@ -77,7 +81,7 @@ nodes:
     image: win-10
   SVR01:
     type: winserver
-
+# clouds/pnets/bridges and their connections (links)
 networks:
   MGMT:
     management: true
@@ -89,7 +93,7 @@ networks:
   XNET-SWI:
     type: bridge
     links: [R1, R2, XNET-ASA]
-
+# Connections between devices
 links:
   ISP: [R1, R2]
   CORE-SWI: [XNET-ASA, WS01, SVR01]

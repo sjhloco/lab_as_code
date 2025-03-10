@@ -3,6 +3,7 @@ lab:
   title: CMLUTIL lab topology
   version: 0.3.0
 nodes:
+  # ISP routers
   - id: n0
     label: ISP
     node_definition: csr1000v
@@ -65,6 +66,7 @@ nodes:
           crypto key generate rsa modulus 2048
           !
           end
+  # Customer edge routers
   - id: n1
     label: R1
     node_definition: iol-xe
@@ -181,6 +183,7 @@ nodes:
           crypto key generate rsa modulus 2048
           !
           end
+  # Edge switch and firewall
   - id: n3
     label: SWI-XNET
     node_definition: ioll2-xe
@@ -309,6 +312,7 @@ nodes:
           crypto key generate rsa modulus 2048
           !
           end
+  # Core switches and end devices
   - id: n5
     label: CORE_SWI
     node_definition: unmanaged_switch
@@ -385,6 +389,7 @@ nodes:
           PASSWORD=cisco
           # no password for tc user by default
           TC_PASSWORD=
+  # External connectors and Unmanaged switches
   - id: n8
     label: INET
     node_definition: external_connector
@@ -409,7 +414,6 @@ nodes:
     configuration:
       - name: default
         content: bridge1
-
   - id: n10
     label: MGMT-SWI
     node_definition: unmanaged_switch
@@ -449,6 +453,7 @@ nodes:
         slot: 7
         type: physical
 links:
+  # Connections between devices
   - id: l0
     label: ISP-GigabitEthernet1<->R1-Ethernet0/0
     n1: n0
