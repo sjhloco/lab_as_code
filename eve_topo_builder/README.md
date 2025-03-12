@@ -5,16 +5,16 @@ Uses the [evengsdk topology builder](https://ttafsir.github.io/evengsdk/topology
 **nodes:** A list of the devices to be created and their attributes, think can add any of the options that the API supports such as *ethernet*, *cpu*, etc
 
 ```yaml
-- name: Device name
-    template: The device type, can see the different options with the cmd "eve-ng --host 'x.y.z.z' --username me --password 'pass' list-node-templates"
-    image: Template images, for example to see the vios images (are in options >> image >> list dictionary) "eve-ng --host 'x.y.z.z' --username me --password 'pass' show-template vios"
-    node_type: Majority of time will be qmeu, although can also have ios dynamips (Cisco IOS emulation) and iol (IOS on Linux also known as IOU)
-    left: Percentage to merge from the left
-    top: Percentage to merge from the top
-    configuration: Specify either a static config file or a template and variables (vars)
-      file: The configuration file name
-      template: Jinja template name, by default looks for it in /templates folder unless specified otherwise at runtime with --template-dir
-      vars: Dictionary of variables used when the template file is rendered
+- name: # Device name
+    template: # The device type, can see the different options with the cmd "eve-ng --host 'x.y.z.z' --username me --password 'pass' list-node-templates"
+    image: # Template images, for example to see the vios images (are in options >> image >> list dictionary) "eve-ng --host 'x.y.z.z' --username me --password 'pass' show-template vios"
+    node_type: # Majority of time will be qmeu, although can also have ios dynamips (Cisco IOS emulation) and iol (IOS on Linux also known as IOU)
+    left: # Percentage to merge from the left
+    top: # Percentage to merge from the top
+    configuration: # Specify either a static config file or a template and variables (vars)
+      file: # The configuration file name
+      template: # Jinja template name, by default looks for it in /templates folder unless specified otherwise at runtime with --template-dir
+      vars: # Dictionary of variables used when the template file is rendered
 ```
 
 A few commands that are useful to gather the *template* (device type) and *image* (os version) names:

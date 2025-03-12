@@ -7,30 +7,30 @@ The topology file is split up into 4 parts, *input_file_example.yml* shows examp
 **lab:** The management details are lab-wise meaning that they will be used by all nodes in the lab.
 
 ```yaml
-name: The lab name, in EVE-NG this must be unique but CML doesn't matter (uses an arbitrary ID for uniqueness)
-description: xxx
+name: # The lab name, in EVE-NG this must be unique but CML doesn't matter (uses an arbitrary ID for uniqueness)
+description: # Lab description
 addr:
-  mgmt_prefix: Range all management address come from
-  mgmt_gw: Management range default gateway, used by all nodes
+  mgmt_prefix: # Range all management address come from
+  mgmt_gw: # Management range default gateway, used by all nodes
 ```
 
 **nodes:** Dictionary of nodes to be created with the key being the node name and value the node details. *mgmt* defines the interface connected to management bridge and the management address (4th octet added to the *mgmt_prefix*). The interface (*intf*) details can be added now or later once know which links have been created, switches and firewalls have additional variables
 
 ```yaml
 nodes:
-  IOL1:
-    type: Node type, in EVE-NG is known as the "template" and in CML the "node_definition"
-    image: (optional) Software version (defaults to newest), in EVE-NG known as "image, in CML "image_definition"
-    eve_type: (optional) Only used by EVE-NG, defaults to qemu so only need to define when using IOL
-    ethernet: (optional) Number of interfaces, if undefined uses the node type default (normally 4)
+  NODE_NAME:
+    type: # Node type, in EVE-NG is known as the "template" and in CML the "node_definition"
+    image: # (optional) Software version (defaults to newest), in EVE-NG known as "image", in CML "image_definition"
+    eve_type: # (optional) Only used by EVE-NG, defaults to qemu so only need to define when using IOL
+    ethernet: # (optional) Number of interfaces, if undefined uses the node type default (normally 4)
     config:
-      template: Per device_type jinja template used to create the config
+      template: # Per device_type jinja template used to create the config
       vars:
-        hostname: R1
+        hostname: # R1
         mgmt:
-          interface_to_be_used: 4th octet of mgmt IP
+          MGMT_INTERFACE_NAME: # 4th octet of mgmt IP
         intf:
-          interface_name: x.x.x.x/yy
+          INTERFACE_NAME: # x.x.x.x/yy
 ```
 
 If you are going to use IOL nodes in EVE-NG you need to be aware of this [bug](https://github.com/ttafsir/evengsdk/issues/186) that breaks link assignment via the API. I submitted a [pull request](https://github.com/ttafsir/evengsdk/pull/220) to fix this but am not sure if the project is still maintained, as a workaround you will have to install this [branch](https://github.com/sjhloco/evengsdk/tree/fix_issue186_iol_interface_id) manually.
@@ -43,18 +43,18 @@ If you are going to use IOL nodes in EVE-NG you need to be aware of this [bug](h
 
 ```yaml
 networks:
-  give_it_a_name:
-    management: When defined identifies this bridge is used for mgmt, all pre-defined node mgmt interfaces connect this
-    type: The network object type, EVE-NG can be bridge or pnetX, CML can be unmanaged_switch, ec_bridgeX or ec_virbrX
-    links: List of nodes that connect to this bridge. Uses the next available local and remote interface (for mgmt uses pre-defined remote interfaces) 
-    ethernet: Required for CML external_connectors if have more than 1 connection, automatically creates an unmanaged_switch (xx_SWI) to connect all devices
+  NETWORK_NAME:
+    management: # When defined identifies this bridge is used for mgmt, all pre-defined node mgmt interfaces connect this
+    type: # The network object type, EVE-NG can be "bridge" or "pnetX", CML can be "unmanaged_switch", "ec_bridgeX" or "ec_virbrX"
+    links: # List of nodes that connect to this bridge. Uses the next available local and remote interface (for mgmt uses pre-defined remote interfaces) 
+    ethernet: # Required for CML external_connectors if have more than 1 connection, automatically creates an unmanaged_switch (xx_SWI) to connect all devices
 ```
 
 **links:** A dictionary of connections from *node_a* (key) to a list of *nodes_b* (value). Rather than having the verboseness of defining each connections interface you just define what is connected and the script will automatically assign the next available interface.
 
 ```yaml
 links:
-  R1: Dict key is node_a and dict value is a list of all the devices it connects to
+  NOOE_A: # Dict key is node_a and dict value is a list of all the devices it connects to
   R2: [R1, XNET-ASA]
 ```
 
