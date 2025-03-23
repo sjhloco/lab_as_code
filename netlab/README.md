@@ -143,7 +143,7 @@ Lab default in /home/ste/labs/blog_lab1
 
 By adding the *graphite* external tool (Web UI/graphing tool used with *containerlab*) to the topology file *‌netlab up* also creates an interactive topology map that can be accessed using *http://netlab_host_ip:8080/graphite/* (deploys a graphite container with port-forwarding).
 
-!!! image !!!!
+<img width="1192" alt="Image" src="https://github.com/user-attachments/assets/b5531a8f-ad70-4125-ae54-9ecf73660fac" />
 
 Can connect locally to any of the nodes using *netlab connect* (don't need to accept SSH key or enter credentials) or via SSH to the mgmt address (use `netlab report mgmt` to get the node default credentials).
 
