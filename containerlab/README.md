@@ -136,7 +136,7 @@ INFO[0000] Parsing & checking topology file: clab_topo.yml
 INFO[0000] Serving topology graph on http://0.0.0.0:50080
 ```
 
-!!!! need image
+<img width="888" alt="Image" src="https://github.com/user-attachments/assets/b684a59b-e14d-4df7-b2c9-ba4d04f21137" />
 
 A Cisco IOL container starts with a bootstrap config that uses *Ethernet0/0* for management (clab always uses 1st interface for management) in the *clab-mgmt* VRF and enables SSH. Have 3 ways to access the nodes, the username/password is whatever the default is for that device_type:
 
