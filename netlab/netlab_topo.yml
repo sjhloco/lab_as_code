@@ -1,0 +1,65 @@
+---
+name: netlab_topo       # Optional, will use folder name if undefined. 
+provider: clab 
+defaults.device: iol
+defaults.providers.clab.lab_prefix: ""
+defaults.providers.clab.forwarded.ssh: 20000          # On each host maps 22 to 20000 + node_id
+defaults.providers.libvirt.forwarded.ssh: 21000       # On each host maps 22 to 21000 + node_id
+addressing.mgmt.ipv4: 192.168.255.0/24                # MGMT range, by default is 100 + node.id (set with addressing.mgmt.start)
+tools.graphite:
+# Common settings for all the switches
+groups:
+  switches:
+    members: [ CORE_SWI, ACCESS_SWI ]
+    module: [ vlan ]
+    device: ioll2
+# Globally create the VLANs and defines the access (host) ports
+vlans:
+  COMPUTE_VL10: 
+    id: 10
+    links: [ CORE_SWI-SVR01 ]
+  ACCESS_VL20: 
+    id: 20
+    links: [ ACCESS_SWI-WS01 ]
+nodes:
+  # ISP routers
+  ISP:
+    provider: libvirt
+    device: csr
+  # Customer edge routers
+  R1:
+  R2:
+  # Edge firewall
+  XNET-ASA:
+    provider: libvirt
+    device: asav
+  # Core/access switches and end devices
+  CORE_SWI:
+    device: ioll2
+  ACCESS_SWI:
+    device: ioll2
+    # L2 VLAN: Stops SVI being crated on switch, SVI will be on core
+    vlans:
+      ACCESS_VL20: 
+        mode: bridge
+  SVR01:
+    device: linux
+    image: ghcr.io/hellt/network-multitool
+  WS01:
+    device: linux
+# Connections between devices, cant use first interface as is reserved for mgmt
+links:
+  ## PtP links
+  - ISP-R1
+  - ISP-R2
+  ## Unmanaged switch 
+  - bridge: XNET-SWI   ## Set custom name for bridge
+    R1:
+    R2:
+    XNET-ASA: 
+  - XNET-ASA:
+    CORE_SWI:
+  # Trunk links
+  - CORE_SWI:
+    ACCESS_SWI:
+    vlan.trunk: [ ACCESS_VL20 ]

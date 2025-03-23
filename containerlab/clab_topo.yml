@@ -1,0 +1,79 @@
+---
+name: clab_topo
+prefix: ""
+mgmt:
+  network: mgmt
+  ipv4-subnet: 192.168.255.0/24
+
+topology:
+  # Default device types and images associations
+  kinds:
+    cisco_iol:
+      image: vrnetlab/cisco_iol:17.12.01
+    ceos:
+      image: ceos:4.33.1F
+    linux:
+      image: ghcr.io/hellt/network-multitool
+    vr-csr:
+      image: vrnetlab/cisco_csr1000v:17.03.04
+
+  nodes:
+    # ISP routers
+    ISP:
+      kind: ceos
+      mgmt-ipv4: 192.168.255.10
+      ports: 
+        - "65010:22"
+    # Customer edge routers
+    R1:
+      kind: cisco_iol
+      mgmt-ipv4: 192.168.255.11
+      ports: 
+        - "65011:22"
+    R2:
+      kind: cisco_iol
+      mgmt-ipv4: 192.168.255.12
+      ports: 
+        - "65012:22"
+    # Edge switch and firewall
+    XNET-SWI:
+      kind: cisco_iol
+      image: vrnetlab/cisco_iol:L2-17.12.01
+      type: l2
+      mgmt-ipv4: 192.168.255.21
+      ports: 
+        - "65021:22"
+    XNET-FW:
+      kind: cisco_iol
+      mgmt-ipv4: 192.168.255.22
+      ports: 
+        - "65022:22"
+    # Core switches and end devices
+    CORE-SWI:
+      kind: cisco_iol
+      image: vrnetlab/cisco_iol:L2-17.12.01
+      type: l2
+      mgmt-ipv4: 192.168.255.31
+      ports: 
+        - "65031:22"
+    SVR01:
+      kind: linux
+      mgmt-ipv4: 192.168.255.32
+      ports: 
+        - "65032:22"
+    WS01:
+      kind: linux
+      type: apline:linux
+      mgmt-ipv4: 192.168.255.33
+      ports: 
+        - "65033:22"
+#  # Connections between devices, cant use first interface as is reserved for mgmt
+  links:
+    - endpoints: ["ISP:eth1","R1:e0/1"] 
+    - endpoints: ["ISP:eth2","R2:e0/1"] 
+    - endpoints: ["XNET-SWI:e0/1","R1:e0/2"] 
+    - endpoints: ["XNET-SWI:e0/2","R2:e0/2"] 
+    - endpoints: ["XNET-SWI:e0/3","XNET-FW:e0/1"] 
+    - endpoints: ["CORE-SWI:e0/1","XNET-FW:e0/2"] 
+    - endpoints: ["CORE-SWI:e0/2","SVR01:eth1"]
+    - endpoints: ["CORE-SWI:e0/3","WS01:eth1"]

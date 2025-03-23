@@ -1,0 +1,24 @@
+interface GigabitEthernet0/0
+ nameif OUTSIDE
+ security-level 100
+interface GigabitEthernet0/1
+ nameif INSIDE
+!
+route INSIDE 10.0.0.0 255.0.0.0 {{ interfaces[1]["neighbors"][0]["ipv4"] | ipaddr('address') }}
+route INSIDE 172.16.0.0 255.240.0.0 {{ interfaces[1]["neighbors"][0]["ipv4"] | ipaddr('address') }}
+route INSIDE 192.168.0.0 255.255.255.0 {{ interfaces[1]["neighbors"][0]["ipv4"] | ipaddr('address') }}
+!
+router ospf {{ ospf.process }}
+ router-id {{ ospf.router_id }} 
+ network {{ interfaces[0]["ipv4"] | ipaddr('address') }} {{ interfaces[0]["ipv4"] | ipaddr('netmask') }} area {{ ospf.area }}
+ redistribute static subnets
+!
+object network {{ interfaces[0]["ipv4"] | ipaddr('-2') | ipaddr('address') }}
+ host {{ interfaces[0]["ipv4"] | ipaddr('-2') | ipaddr('address') }}
+nat (INSIDE,OUTSIDE) source dynamic any {{ interfaces[0]["ipv4"] | ipaddr('-2') | ipaddr('address') }}
+!
+access-list OUTSIDE extended permit icmp any any
+access-list OUTSIDE extended permit ospf any any
+access-list INSIDE extended permit ip any any
+access-group OUTSIDE in interface OUTSIDE
+access-group INSIDE in interface INSIDE

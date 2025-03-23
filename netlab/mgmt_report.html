@@ -1,0 +1,211 @@
+<html>
+  <head>
+    <style>
+body {
+  font-size: 14px;
+  line-height: 1.6;
+  font-family: Verdana, sans-serif;
+  font-weight: normal;
+  font-style: normal; }
+
+h1, h2, h3 {
+  color: #d26400;
+  font-weight: 500;
+  margin-bottom: 1em; }
+
+h1 { font-size: 200% }
+h2 { font-size: 140% }
+h3 { font-size: 120%; }
+
+a {
+  color: #d26400;
+  text-decoration: none; }
+
+table {
+  border-collapse: collapse;
+  border: 1px solid #e8e8e8;
+  font-size: 14px; }
+
+table h1, table h2,table h3 {
+  margin: 0 0; }
+
+th, td {
+  padding: 6px 12px;
+  line-height: 1.6; }
+
+td.header {
+  border-bottom: 1px solid #e8e8e8;
+  border-top: 1px solid #e8e8e8; }
+
+th {
+  text-align: left;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: bold;
+  font-style: normal;
+  vertical-align: bottom;
+  background-color: rgba(205, 205, 205, 0.16); }
+
+td {
+  text-align: left;
+  vertical-align: top; }
+
+.center { text-align: center }
+.right { text-align: right }
+  </style>
+  </head>
+  <body>
+    <h1>Management Access to Lab Devices</h1>
+<h2>Management Interfaces and Addresses</h2>
+<table>
+  <tr>
+    <th>Node</th>
+    <th>Connection</th>
+    <th>IPv4 Address</th>
+    <th>Port</th>
+    <th>Interface name</th>
+    <th>Username</th>
+    <th>Password</th>
+  </tr>
+  <tr>
+    <td>ISP</td>
+    <td>ssh</td>
+    <td>192.168.255.101</td>
+    <td></td>
+    <td>GigabitEthernet1</td>
+    <td>vagrant</td>
+    <td>vagrant</td>
+  </tr>
+  <tr>
+    <td>R1</td>
+    <td>ssh</td>
+    <td>R1</td>
+    <td></td>
+    <td>Ethernet0/0</td>
+    <td>admin</td>
+    <td>admin</td>
+  </tr>
+  <tr>
+    <td>R2</td>
+    <td>ssh</td>
+    <td>R2</td>
+    <td></td>
+    <td>Ethernet0/0</td>
+    <td>admin</td>
+    <td>admin</td>
+  </tr>
+  <tr>
+    <td>XNET-ASA</td>
+    <td>ssh</td>
+    <td>192.168.255.104</td>
+    <td></td>
+    <td>Management0/0</td>
+    <td>vagrant</td>
+    <td>vagrant1</td>
+  </tr>
+  <tr>
+    <td>CORE_SWI</td>
+    <td>ssh</td>
+    <td>CORE_SWI</td>
+    <td></td>
+    <td>Ethernet0/0</td>
+    <td>admin</td>
+    <td>admin</td>
+  </tr>
+  <tr>
+    <td>ACCESS_SWI</td>
+    <td>ssh</td>
+    <td>ACCESS_SWI</td>
+    <td></td>
+    <td>Ethernet0/0</td>
+    <td>admin</td>
+    <td>admin</td>
+  </tr>
+  <tr>
+    <td>SVR01</td>
+    <td>docker</td>
+    <td></td>
+    <td></td>
+    <td>eth0</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>WS01</td>
+    <td>docker</td>
+    <td></td>
+    <td></td>
+    <td>eth0</td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+<h2>Forwarded Ports</h2>
+<p>
+Some management-plane protocols of the following lab nodes can also be reached
+through the TCP ports on the host IP address(es). Please note that this is just
+a port mapping table, most devices do not run all supported management-plane
+protocols.
+</p>
+<table>
+  <tr>
+    <th>Node</th>
+    <th>ssh</th>
+    <th>http</th>
+    <th>https</th>
+    <th>netconf</th>
+  </tr>
+  <tr>
+    <td>ISP</td>
+<td>21001</td>
+<td></td>
+<td></td>
+<td></td>
+  <tr>
+    <td>R1</td>
+<td>20002</td>
+<td></td>
+<td></td>
+<td></td>
+  <tr>
+    <td>R2</td>
+<td>20003</td>
+<td></td>
+<td></td>
+<td></td>
+  <tr>
+    <td>XNET-ASA</td>
+<td>21004</td>
+<td></td>
+<td></td>
+<td></td>
+  <tr>
+    <td>CORE_SWI</td>
+<td>20005</td>
+<td></td>
+<td></td>
+<td></td>
+  <tr>
+    <td>ACCESS_SWI</td>
+<td>20006</td>
+<td></td>
+<td></td>
+<td></td>
+  <tr>
+    <td>SVR01</td>
+<td>20007</td>
+<td></td>
+<td></td>
+<td></td>
+  <tr>
+    <td>WS01</td>
+<td>20008</td>
+<td></td>
+<td></td>
+<td></td>
+</table>
+
+
+  </body>
+</html>

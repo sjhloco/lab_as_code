@@ -1,0 +1,5 @@
+interface Ethernet0/1
+ ip nat outside
+interface Ethernet0/2
+ ip nat inside
+ip nat inside source static {{ interfaces[1]["ipv4"] | ipaddr('-2') | ipaddr('address')}} {{ public_ip }} 

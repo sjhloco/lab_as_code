@@ -5,26 +5,26 @@ Uses the [cmlutils](https://github.com/CiscoDevNet/virlutils) tool to import a C
 **nodes:** A list of nodes with each requiring a name and unique ID, the node interfaces are defined in a similar manner. The startup config must also be included in the file, it cant be sourced externally.
 
 ```yaml
-- id: # Unique identifier of the node (nx), is what is used to reference it in the links
+- id: # Unique identifier of the node (nX), is what is used to reference it in the links
   label: # Friendly name of the node as seen in GUI
   node_definition: # Is the device type
   image_definition: # Optionally specify an image if the node_definition has more than one 
   x: # Location from left, works on 0 being centre
   y: # Location down, works on 0 being centre
   interfaces:
-    - id: # Unique identifier of the node interface (ix), is what is used to reference it in the links section 
+    - id: # Unique identifier of the node interface (iX), is what is used to reference it in the links section 
       label: # Name of the interface
       slot: # Unique number of the interface, not sure how relates but loopback is 0 and then other interfaces start from 1
       type: # Can be physical or loopback
   configuration:
     - name: # Name of the configuration file as seen in CML GUI
-      content: # Raw startup config to be applied to the node
+      content: # Startup config (defined 'inline') to be applied to the node
 ```
 
 **links:** A list of dictionaries that contain connections between nodes and connections between nodes and external connectors.
 
 ```yaml
-- id: # Unique identifier of the link (lx)
+- id: # Unique identifier of the link (lX)
   n1: # Node ID for A end of the link
   n2: # Node ID for B end of the link
   i1: # Interface ID for A end of the link

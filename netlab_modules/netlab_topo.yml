@@ -1,0 +1,123 @@
+---
+name: netlab_topo       # Optional, will use folder name if undefined. 
+provider: clab 
+defaults.device: iol
+defaults.providers.clab.lab_prefix: ""
+defaults.providers.clab.forwarded.ssh: 20000          # On each host maps 22 to 20000 + node_id
+defaults.providers.libvirt.forwarded.ssh: 21000       # On each host maps 22 to 21000 + node_id
+addressing.mgmt.ipv4: 192.168.255.0/24                # MGMT range, by default is 100 + node.id (set with addressing.mgmt.start)
+tools.graphite:
+# plugin: [ bgp.policy ]                              # Was for prepend ASN, had to remove as incompatible with clab linux nodes
+## GROUPS: Settings that are common to all devices in the group
+groups:
+  # Common settings for all switches
+  switches:
+    members: [ CORE_SWI, ACCESS_SWI ]
+    module: [ vlan ]
+    device: ioll2
+  # Common settings for all edge routers
+  routers:
+    members: [ R1, R2]
+    module: [ bgp, ospf]
+    config: [ edge_nat ]
+    bgp.originate: [ 88.1.1.1/32 ]
+    ospf.default: true
+    vars:
+      public_ip: 88.1.1.1
+  # Needed so can set ansible group_vars to be used by custom template
+  asa:
+    members: [ XNET-ASA ]
+    vars:
+      ospf:
+        router_id: 3.3.3.3
+        process: 1
+        area: 0.0.0.0
+# VLANS: Globally create the VLANs and defines the access (host) ports
+vlans:
+  COMPUTE_VL10: 
+    id: 10
+    vrf: GRN
+    links: [ CORE_SWI-SVR01 ]
+  ACCESS_VL20: 
+    id: 20
+    vrf: BLU
+    links: [ ACCESS_SWI-WS01 ]
+## BGP: Globally create BGP peerings (cant do settings here)
+bgp:
+  as_list:
+    65510:
+      members: [ ISP ]
+    65550:
+      members: [ R1, R2 ]
+## NODES: All the lab nodes and there nodes-specific attributes (not covered by global)
+nodes:
+  # ISP routers
+  ISP:
+    module: [ bgp ]
+    provider: libvirt
+    device: csr
+    bgp.originate: 0.0.0.0/0
+  # Customer edge routers
+  R1:
+    ospf.router_id: 1.1.1.1
+    ospf.default.type: e1         # R1 will be the favoured router
+  R2:
+    ospf.router_id: 2.2.2.2
+  # Edge firewall
+  XNET-ASA:
+    provider: libvirt
+    device: asav
+    config: [ asa_ospf ]
+  # Core/access switches and end device
+  CORE_SWI:
+    module: [ vrf, routing ]
+    config: [ coreswi_bgp ]
+    vrfs:
+      TRI:
+        import: [ BLU, GRN ]
+        export: [ TRI ]
+      BLU:
+        import: [ TRI ]
+        export: [ BLU ]
+      GRN:
+        import: [ TRI ]
+        export: [ GRN ]
+    routing.static:
+      - ipv4: 0.0.0.0/0
+        nexthop.node: XNET-ASA
+        vrf: TRI
+  ACCESS_SWI:
+    vlans:
+      ACCESS_VL20: 
+        mode: bridge       # L2 VLAN: Stops SVI being created on switch, SVI will be on core
+  SVR01:
+    device: linux
+    image: ghcr.io/hellt/network-multitool
+  WS01:
+    device: linux
+## LINKS: Connections between devices, as well as interface and link (all interfaces on link) attributes
+links:
+  # Create a loopback s, only 1 is advertised into BGP
+  - ISP:
+    prefix: 1.1.1.1/32
+    type: loopback
+    bgp.advertise: False
+  - ISP:
+    prefix: 8.8.8.8/32
+    type: loopback
+  # PtP links
+  - ISP: {bgp.local_as: 65111}
+    R1:
+  - ISP: {bgp.local_as: 65112}
+    R2: # {bgp.prepend.count: 3}    # R1 will be the favoured router
+  # Unmanaged switch 
+  - bridge: XNET-SWI      # Set custom name for bridge
+    R1:
+    R2:
+    XNET-ASA: 
+  - XNET-ASA:
+    CORE_SWI: {vrf: TRI}
+  # Trunk links
+  - CORE_SWI:
+    ACCESS_SWI:
+    vlan.trunk: [ ACCESS_VL20 ]

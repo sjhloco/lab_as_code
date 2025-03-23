@@ -12,7 +12,7 @@ Uses the [evengsdk topology builder](https://ttafsir.github.io/evengsdk/topology
     left: # Percentage to merge from the left
     top: # Percentage to merge from the top
     configuration: # Specify either a static config file or a template and variables (vars)
-      file: # The configuration file name
+      file: # The static configuration file name
       template: # Jinja template name, by default looks for it in /templates folder unless specified otherwise at runtime with --template-dir
       vars: # Dictionary of variables used when the template file is rendered
 ```

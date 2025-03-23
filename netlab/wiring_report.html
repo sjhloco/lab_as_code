@@ -1,0 +1,144 @@
+<html>
+  <head>
+    <style>
+body {
+  font-size: 14px;
+  line-height: 1.6;
+  font-family: Verdana, sans-serif;
+  font-weight: normal;
+  font-style: normal; }
+
+h1, h2, h3 {
+  color: #d26400;
+  font-weight: 500;
+  margin-bottom: 1em; }
+
+h1 { font-size: 200% }
+h2 { font-size: 140% }
+h3 { font-size: 120%; }
+
+a {
+  color: #d26400;
+  text-decoration: none; }
+
+table {
+  border-collapse: collapse;
+  border: 1px solid #e8e8e8;
+  font-size: 14px; }
+
+table h1, table h2,table h3 {
+  margin: 0 0; }
+
+th, td {
+  padding: 6px 12px;
+  line-height: 1.6; }
+
+td.header {
+  border-bottom: 1px solid #e8e8e8;
+  border-top: 1px solid #e8e8e8; }
+
+th {
+  text-align: left;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: bold;
+  font-style: normal;
+  vertical-align: bottom;
+  background-color: rgba(205, 205, 205, 0.16); }
+
+td {
+  text-align: left;
+  vertical-align: top; }
+
+.center { text-align: center }
+.right { text-align: right }
+  </style>
+  </head>
+  <body>
+    <h1>Lab Topology Summary</h1>
+<p>Lab name: netlab_topo</p>
+
+<h2>Point-to-Point Links</h2>
+<table>
+  <tr>
+    <th>Origin Device</th>
+    <th>Origin Port</th>
+    <th>Destination Device</th>
+    <th>Destination Port</th>
+  </tr>
+  <tr>
+    <td>ISP</td>
+    <td>GigabitEthernet2</td>
+    <td>R1</td>
+    <td>Ethernet0/1</td>
+  </tr>
+  <tr>
+    <td>ISP</td>
+    <td>GigabitEthernet3</td>
+    <td>R2</td>
+    <td>Ethernet0/1</td>
+  </tr>
+  <tr>
+    <td>XNET-ASA</td>
+    <td>GigabitEthernet0/1</td>
+    <td>CORE_SWI</td>
+    <td>Ethernet0/1</td>
+  </tr>
+  <tr>
+    <td>CORE_SWI</td>
+    <td>Ethernet0/2</td>
+    <td>ACCESS_SWI</td>
+    <td>Ethernet0/1</td>
+  </tr>
+  <tr>
+    <td>CORE_SWI</td>
+    <td>Ethernet0/3</td>
+    <td>SVR01</td>
+    <td>eth1</td>
+  </tr>
+  <tr>
+    <td>ACCESS_SWI</td>
+    <td>Ethernet0/2</td>
+    <td>WS01</td>
+    <td>eth1</td>
+  </tr>
+</table>
+
+<h2>LAN Links</h2>
+<table>
+  <tr>
+    <th>Origin Device</th>
+    <th>Origin Port</th>
+    <th>Link Name (NET)</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>R1</td>
+    <td>Ethernet0/2</td>
+    <td>XNET-SWI</td>
+    <td>R1 -> [R2,XNET-ASA]</td>
+  </tr>
+  <tr>
+    <td>R2</td>
+    <td>Ethernet0/2</td>
+    <td>XNET-SWI</td>
+    <td>R2 -> [R1,XNET-ASA]</td>
+  </tr>
+  <tr>
+    <td>XNET-ASA</td>
+    <td>GigabitEthernet0/0</td>
+    <td>XNET-SWI</td>
+    <td>XNET-ASA -> [R1,R2]</td>
+  </tr>
+  <tr>
+    <td>WS01</td>
+    <td>eth1</td>
+    <td>netlab_top_7</td>
+    <td>WS01 -> [ACCESS_SWI,CORE_SWI]</td>
+  </tr>
+</table>
+
+
+
+  </body>
+</html>
