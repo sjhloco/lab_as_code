@@ -31,7 +31,7 @@ groups
 
 This lab topology and configuration that is achieved with the *netlab_topo.yml*.
 
-!!! image !!!!
+<img width="1009" alt="Image" src="https://github.com/user-attachments/assets/dbc88040-e597-4c2c-beba-0d8b97988790" />
 
 I have had to stop using *AS path prepend* (hashed out *plugin: [ bgp.policy ]*) because if the plugin is enabled and there are clab linux containers (*device: linux*) in the lab ***netlab up*** fails with the following message:
 
